@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body style="margin:0">
+<title>Headless Salesforce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Libre+Franklin:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap">
+<style id="stage">
+/* Layout: one keynote stage. Spotlit hero with a live gauge, then the "deck" slides stacked below. Deliberately single dark theme (it is a stage). */
+:root {
+  color-scheme: dark;
+  --curtain: #22090f;
+  --curtain-2: #34111a;
+  --spot: #f6ead2;
+  --muted: #c9b39c;
+  --gold: #e8b04a;
+  --blood: #d8414b;
+  --rule: rgba(246,234,210,.14);
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "Libre Franklin", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--curtain);
+  color: var(--spot);
+  font: 400 1rem/1.6 var(--body);
+  padding-inline: 16px;
+}
+.wrap { max-width: 1080px; margin-inline: auto; }
+a { color: var(--gold); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+.topbar {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between;
+  padding-block: 14px; border-bottom: 1px solid var(--rule);
+  font: 700 .72rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+}
+.topbar b { color: var(--gold); }
+
+.hero {
+  display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1fr); gap: 40px; align-items: center;
+  padding-block: 56px 48px;
+  background: radial-gradient(ellipse 60% 70% at 30% 10%, rgba(246,234,210,.10), transparent 70%);
+}
+.eyebrow { font: 700 .75rem/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+h1 {
+  font: 900 clamp(3.4rem, 9vw, 7rem)/.86 var(--display);
+  text-transform: uppercase; letter-spacing: -.01em; margin: 14px 0 18px; text-wrap: balance;
+}
+h1 s { text-decoration-color: var(--blood); text-decoration-thickness: .09em; color: var(--muted); }
+.lede { font-size: 1.15rem; max-width: 34ch; color: var(--muted); margin: 0; }
+.lede strong { color: var(--spot); font-weight: 600; }
+.parody-tag {
+  display: inline-block; margin-top: 22px; padding: 6px 10px; border: 1px solid var(--rule);
+  font: 400 .72rem/1.4 var(--mono); color: var(--muted);
+}
+
+h2 {
+  font: 900 clamp(2rem, 5vw, 3.2rem)/.95 var(--display); text-transform: uppercase;
+  margin: 8px 0 18px; text-wrap: balance;
+}
+section.slide { padding-block: 56px; border-top: 1px solid var(--rule); }
+section.slide > p { max-width: 62ch; color: var(--muted); }
+
+.features { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; }
+.features li {
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 24px;
+  padding-block: 18px; border-bottom: 1px solid var(--rule); align-items: baseline;
+}
+.features .was { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--blood); }
+.features .now { font: 700 1.5rem/1.15 var(--display); text-transform: uppercase; letter-spacing: .01em; }
+.features .now code { font: 700 .95rem var(--mono); text-transform: none; color: var(--gold); }
+
+.scan {
+  background: #120407; border: 1px solid var(--rule); padding: 18px; min-height: 260px;
+  font: 400 .86rem/1.7 var(--mono); color: var(--spot); overflow-x: auto; white-space: pre-wrap;
+}
+.scan .k { color: var(--gold); }
+.scan .bad { color: var(--blood); }
+.btn {
+  font: 700 .8rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase;
+  background: var(--spot); color: var(--curtain); border: 0; padding: 14px 18px; cursor: pointer;
+}
+.btn.ghost { background: transparent; color: var(--spot); border: 1px solid var(--rule); }
+.row { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 16px; }
+
+.quad { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 32px; align-items: center; }
+.quad svg { width: 100%; max-width: 440px; height: auto; }
+.quad svg text { font-family: var(--mono); fill: var(--muted); font-size: 11px; }
+.quad blockquote { margin: 0; font: 700 1.6rem/1.15 var(--display); text-transform: uppercase; }
+.quad cite { display: block; margin-top: 10px; font: 400 .8rem var(--mono); color: var(--muted); font-style: normal; }
+
+.errors { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.errors span { font: 400 .78rem/1 var(--mono); padding: 8px 10px; border: 1px solid var(--rule); color: var(--blood); }
+
+.install ol { padding-left: 1.2em; max-width: 60ch; }
+.install li { margin-block: 8px; }
+.install code, .slide code { font-family: var(--mono); font-size: .9em; color: var(--gold); }
+
+footer {
+  border-top: 1px solid var(--rule); padding-block: 28px 48px;
+  font: 400 .78rem/1.6 var(--mono); color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .hero, .quad { grid-template-columns: minmax(0,1fr); }
+  .features li { grid-template-columns: minmax(0,1fr); gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+body.decapitated .topbar, body.decapitated .hero-copy { visibility: hidden; }
+</style>
+
+<div class="wrap">
+  <header class="topbar">
+    <span><b>Headless Salesforce</b> v1.0 · Chrome extension</span>
+    <span>Keynote edition · Hall of No Heads</span>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Introducing</div>
+        <h1>Headless<br>360<s>.</s><br><s>Head</s></h1>
+        <p class="lede">Everyone talks about going headless. <strong>We removed the head.</strong> One click hides your Lightning header. Two clicks delete <code>document.head</code>. Your Composability Score goes to 100% because the page has nothing left to compose.</p>
+        <span class="parody-tag">Parody. Not affiliated with Salesforce. Cosmetic, your browser only, org untouched.</span>
+      </div>
+
+      <!-- Inline styles on purpose: this panel must survive FULL SEND. -->
+      <aside id="panel" aria-label="Composability Score demo" style="background:#120407;border:1px solid rgba(246,234,210,.18);padding:22px;font-family:ui-monospace,Menlo,monospace;color:#f6ead2;max-width:100%">
+        <div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#e8b04a">Composability Score</div>
+        <div id="score" style="font-size:64px;font-weight:700;line-height:1;margin:10px 0 6px;font-variant-numeric:tabular-nums">38%</div>
+        <div style="height:10px;background:rgba(246,234,210,.12)"><div id="bar" style="height:100%;width:38%;background:#e8b04a;transition:width .6s"></div></div>
+        <div id="status" style="font-size:12px;color:#c9b39c;margin:12px 0 16px;min-height:2.6em">Head attached. Architecture review says this is a problem.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <button id="goHeadless" type="button" style="font:700 12px ui-monospace,Menlo,monospace;letter-spacing:.1em;padding:11px 12px;background:#f6ead2;color:#22090f;border:0;cursor:pointer">GO HEADLESS</button>
+          <button id="fullSend" type="button" style="font:700 12px ui-monospace,Menlo,monospace;letter-spacing:.1em;padding:11px 12px;background:#d8414b;color:#fff;border:0;cursor:pointer">FULL SEND ☠</button>
+          <button id="recompose" type="button" hidden style="font:700 12px ui-monospace,Menlo,monospace;letter-spacing:.1em;padding:11px 12px;background:transparent;color:#f6ead2;border:1px solid rgba(246,234,210,.3);cursor:pointer">RECOMPOSE</button>
+        </div>
+        <div style="font-size:11px;color:#c9b39c;margin-top:12px">Try it here. This page is the test org.</div>
+      </aside>
+    </div>
+
+    <section class="slide">
+      <div class="eyebrow">What's new</div>
+      <h2>Everything you asked for, minus the top</h2>
+      <ul class="features">
+        <li><span class="was">Single source of truth</span><span class="now">Zero sources. Truly unified.</span></li>
+        <li><span class="was">Powered by Einstein</span><span class="now">Powered by <code>document.head.remove()</code></span></li>
+        <li><span class="was">API-first</span><span class="now">Head-last architecture</span></li>
+        <li><span class="was">Customer 360</span><span class="now">Customer 360, viewed from the neck down</span></li>
+        <li><span class="was">Clicks, not code</span><span class="now">One click. No code. No CSS either.</span></li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <div class="eyebrow">Headless Readiness Assessment™</div>
+      <h2>Is your org ready to lose its head?</h2>
+      <p>Our consultants ran this scan on every org we could think of. The result was the same every time.</p>
+      <div class="row">
+        <button class="btn" id="runScan" type="button">Run assessment</button>
+      </div>
+      <div class="scan" id="scan" aria-live="polite"><span class="k">&gt;</span> Ready. Press "Run assessment" to scan this org.</div>
+    </section>
+
+    <section class="slide">
+      <div class="eyebrow">Analyst recognition</div>
+      <div class="quad">
+        <svg viewBox="0 0 320 320" role="img" aria-label="Quadrant chart. Headless 360 sits in the bottom-left corner.">
+          <rect x="40" y="10" width="270" height="270" fill="none" stroke="rgba(246,234,210,.25)"/>
+          <line x1="175" y1="10" x2="175" y2="280" stroke="rgba(246,234,210,.25)"/>
+          <line x1="40" y1="145" x2="310" y2="145" stroke="rgba(246,234,210,.25)"/>
+          <text x="50" y="28">CHALLENGERS</text>
+          <text x="236" y="28">LEADERS</text>
+          <text x="50" y="270">NICHE</text>
+          <text x="232" y="270">VISIONARIES</text>
+          <text x="110" y="304">ABILITY TO HAVE A HEAD →</text>
+          <circle cx="56" cy="262" r="8" fill="#d8414b"/>
+          <text x="70" y="248" style="fill:#f6ead2">Headless 360™</text>
+        </svg>
+        <div>
+          <blockquote>Named a Leader in the Mystic Quadrant for CRMs With No Head.</blockquote>
+          <cite>It is a leadership position if you rotate the chart 180 degrees.</cite>
+          <div class="errors" aria-label="Findings from the architecture review">
+            <span>Too many SOQL queries: 101</span>
+            <span>UNABLE_TO_LOCK_ROW</span>
+            <span>MIXED_DML_OPERATION</span>
+            <span>a Friday 4:55pm deploy</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide install">
+      <div class="eyebrow">General availability</div>
+      <h2>Begin your headless journey</h2>
+      <p>No sales call. No follow-up deck. Four steps.</p>
+      <ol>
+        <li>Open <code>chrome://extensions</code>.</li>
+        <li>Turn on Developer mode (top right).</li>
+        <li>Click Load unpacked. Select the <code>headless-salesforce</code> folder.</li>
+        <li>Open any Lightning page. The panel shows in the top right.</li>
+      </ol>
+      <p>It runs on <code>*.lightning.force.com</code>, <code>*.salesforce.com</code> and <code>*.force.com</code>. Full Send changes no records. It breaks the look of your own tab until you reload. Do not Full Send in a client screenshare, unless comedy is the goal.</p>
+    </section>
+  </main>
+
+  <footer>
+    Parody. Not affiliated with, sponsored by, or endorsed by Salesforce, Inc. Salesforce and Headless 360 belong to their owners. Not affiliated with any analyst firm. Not affiliated with good judgment.
+  </footer>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const score = $('score'), bar = $('bar'), status = $('status');
+  const stage = $('stage');
+  let headless = false, sent = false, clicks = [];
+
+  const setScore = (n, msg) => { score.textContent = n + '%'; bar.style.width = n + '%'; status.textContent = msg; };
+
+  $('goHeadless').addEventListener('click', () => {
+    const now = Date.now();
+    clicks = clicks.filter(t => now - t < 1200).concat(now);
+    if (clicks.length >= 3 && !sent) { clicks = []; fullSend(); return; }
+    headless = !headless;
+    document.body.classList.toggle('decapitated', headless);
+    $('goHeadless').textContent = headless ? 'RE-ATTACH' : 'GO HEADLESS';
+    setScore(headless ? 72 : 38, headless ? 'Header hidden. Stakeholders report feeling lighter.' : 'Head re-attached. Composability down.');
+  });
+
+  let timer = null;
+  function fullSend() {
+    if (sent || timer) return;
+    let n = 3;
+    const btn = $('fullSend');
+    btn.textContent = 'ABORT';
+    setScore(90, 'Decoupling the frontend in 3…');
+    timer = setInterval(() => {
+      n--;
+      if (n > 0) { status.textContent = 'Decoupling the frontend in ' + n + '…'; return; }
+      clearInterval(timer); timer = null;
+      stage.disabled = true;
+      sent = true;
+      btn.hidden = true;
+      $('recompose').hidden = false;
+      setScore(100, 'Fully headless. Per the architecture review: UNABLE_TO_LOCK_ROW.');
+    }, 800);
+  }
+  $('fullSend').addEventListener('click', () => {
+    if (timer) { clearInterval(timer); timer = null; $('fullSend').textContent = 'FULL SEND ☠'; setScore(headless ? 72 : 38, 'Aborted. The head stays, for now.'); return; }
+    fullSend();
+  });
+
+  $('recompose').addEventListener('click', () => {
+    stage.disabled = false; sent = false; headless = false;
+    document.body.classList.remove('decapitated');
+    $('goHeadless').textContent = 'GO HEADLESS';
+    $('fullSend').textContent = 'FULL SEND ☠';
+    $('fullSend').hidden = false; $('recompose').hidden = true;
+    setScore(38, 'Recomposed. Everything is composable now, including this.');
+  });
+
+  const lines = [
+    ['k', 'Scanning org metadata…'],
+    ['', 'Custom fields found: 2,847. Fields in use: 943.'],
+    ['', 'Record-triggered flows on Opportunity: 14. Flows that do the same thing: 14.'],
+    ['bad', 'Apex trigger "OppTrigger2_FINAL_v3" found. Author: nobody admits it.'],
+    ['bad', 'Process Builder found. In this economy.'],
+    ['', 'Validation rules bypassed by "Integration User": all of them.'],
+    ['k', 'Assessing composability…'],
+    ['', 'Result: this org is a perfect candidate for Headless 360.'],
+    ['bad', 'Biggest blocker to full composability: the head.'],
+    ['k', 'Recommendation: press FULL SEND, or request a follow-up deck.']
+  ];
+  $('runScan').addEventListener('click', () => {
+    const out = $('scan');
+    out.innerHTML = '';
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    lines.forEach(([cls, text], i) => setTimeout(() => {
+      const row = document.createElement('div');
+      row.innerHTML = '<span class="k">&gt;</span> ';
+      const t = document.createElement('span');
+      if (cls) t.className = cls;
+      t.textContent = text;
+      row.appendChild(t);
+      out.appendChild(row);
+    }, reduce ? 0 : i * 380));
+  });
+})();
+</script>
+
+</body>
+</html>
